@@ -8,6 +8,7 @@
 package apexsimulator.components.registerfile;
 
 import apexsimulator.components.DisplayInterface;
+import apexsimulator.components.instructions.Instruction;
 
 /**
  * Register file implemented as singleton
@@ -26,9 +27,16 @@ public class RegisterFile implements DisplayInterface {
     private int committedPC;
 
     private volatile static RegisterFile rf;
+    public RAT rat;
+
+    public Instruction[] production;
 
     private RegisterFile() {
+        rat = new RAT();
+        production = new Instruction[4];
         reload();
+
+
     }
 
     /**
@@ -54,6 +62,10 @@ public class RegisterFile implements DisplayInterface {
         committedPC = -1;
         GlobalVars.execution_completed = false;
         GlobalVars.pipeline_frozen = false;
+        rat.reload();
+        for (int i=0; i < 4; ++i) {
+            production[i] = null;
+        }
     }
 
     // Getters and setters
@@ -80,7 +92,7 @@ public class RegisterFile implements DisplayInterface {
     @Override
     public void display() {
         System.out.println("---Contents of register file:---");
-
+        rat.display();
         System.out.println("--------------------------------");
     }
 }

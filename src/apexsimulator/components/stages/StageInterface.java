@@ -7,7 +7,7 @@
 
 package apexsimulator.components.stages;
 
-import apexsimulator.components.Instruction;
+import apexsimulator.components.instructions.Instruction;
 
 /**
  * Interface for a typical stage in the pipeline
@@ -18,7 +18,22 @@ public interface StageInterface {
 
     /**
      * Clock cycle received
-     * @param instruction instruction to be operated on
      */
-    void advance(Instruction instruction);
+    void nextCycle();
+
+    /**
+     * Clears stage
+     */
+    void clear();
+
+    /**
+     * Displays stage
+     */
+    void display();
+
+    /**
+     * Id of stage
+     * @param id unique number of the stage
+     */
+    void setId(int id);
 }

@@ -8,7 +8,8 @@
 package apexsimulator.components.stages;
 
 import apexsimulator.components.DisplayInterface;
-import apexsimulator.components.Instruction;
+import apexsimulator.components.instructions.Instruction;
+import apexsimulator.components.registerfile.GlobalVars;
 import apexsimulator.components.registerfile.RegisterFile;
 import apexsimulator.util.ErrorCodes;
 import apexsimulator.util.InstructionsEnum;
@@ -21,17 +22,48 @@ import apexsimulator.util.StringParser;
  *
  * @author Roman Kurbanov
  */
-public class Decode1 implements StageInterface, DisplayInterface{
+public class Decode1 implements StageInterface{
     private Instruction instruction;
-    String[] tokens;
+    private RegisterFile rf;
+    //String[] tokens;
+    private int produce;
+    private int consume;
+
+    public Decode1() {
+        rf = RegisterFile.getInstance();
+    }
 
 
     /**
      * Clock cycle received
-     *
-     * @param instruction instruction to be operated on
      */
     @Override
+    public void nextCycle() {
+        // end of operations
+        if (GlobalVars.pipeline_frozen) {
+            return;
+        }
+
+        // Next stage hasn't consumed it or data not available
+        if (rf.production[produce]!=null || rf.production[consume]==null) {
+            return;
+        }
+
+        instruction = rf.production[consume];
+        // do smth with instruction
+        rf.production[consume] = null;
+        rf.production[produce] = instruction;
+    }
+
+    /**
+     * Clears stage
+     */
+    @Override
+    public void clear() {
+        instruction = null;
+        rf.production[produce] = null;
+    }
+/*    @Override
     public void advance(Instruction instruction) {
         this.instruction = instruction;
         if (instruction==null) return;
@@ -90,7 +122,7 @@ public class Decode1 implements StageInterface, DisplayInterface{
             return false;
         }
         return true;
-    }
+    }*/
 
     /**
      * Prints status to console
@@ -102,5 +134,15 @@ public class Decode1 implements StageInterface, DisplayInterface{
         } else {
             System.out.printf("[D1]:%s; ", instruction.getInstr().toString());
         }
+    }
+
+    /**
+     * Id of stage
+     * @param id unique number of the stage
+     */
+    @Override
+    public void setId(int id) {
+        produce = id;
+        consume = id -1;
     }
 }

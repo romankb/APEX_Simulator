@@ -8,7 +8,8 @@
 package apexsimulator.components.stages;
 
 import apexsimulator.components.DisplayInterface;
-import apexsimulator.components.Instruction;
+import apexsimulator.components.instructions.Instruction;
+import apexsimulator.components.registerfile.GlobalVars;
 import apexsimulator.components.registerfile.RegisterFile;
 
 /**
@@ -17,9 +18,11 @@ import apexsimulator.components.registerfile.RegisterFile;
  *
  * @author Roman Kurbanov
  */
-public class Fetch1 implements StageInterface, DisplayInterface{
+public class Fetch1 implements StageInterface{
     private Instruction instruction;
     private RegisterFile rf;
+    private int produce;
+    private int consume;
 
     /**
      * Gets instance of register file to figure out program counter
@@ -31,16 +34,39 @@ public class Fetch1 implements StageInterface, DisplayInterface{
 
     /**
      * Fetches instruction from memory
-     * @param instruction instruction to be operated on
      */
     @Override
-    public void advance(Instruction instruction) {
-        this.instruction = instruction;
-        if (instruction == null)    return;
+    public void nextCycle() {
+
+        // end of operations
+        if (GlobalVars.pipeline_frozen) {
+            return;
+        }
+
+        // Next stage hasn't consumed it
+        if (rf.production[produce]!=null) {
+            return;
+        }
+
+
+
+        // Normal work
+        instruction = new Instruction();
         int pcVal = rf.getFetchPC();
         instruction.setPC(pcVal);
         rf.setFetchPC(++pcVal);
+        rf.production[produce] = instruction;
     }
+
+    /**
+     * Clears stage
+     */
+    @Override
+    public void clear() {
+        instruction = null;
+        rf.production[produce] = null;
+    }
+
 
     /**
      * Prints status to console
@@ -50,7 +76,17 @@ public class Fetch1 implements StageInterface, DisplayInterface{
         if (instruction==null) {
             System.out.print("[F1]:EMPTY; ");
         } else {
-            System.out.printf("[F1]:PC%d; ", instruction.getPC());
+            System.out.printf("[F1]:PC %d; ", instruction.getPC());
         }
+    }
+
+    /**
+     * Id of stage
+     * @param id unique number of the stage
+     */
+    @Override
+    public void setId(int id) {
+        produce = id;
+        consume = id -1;
     }
 }

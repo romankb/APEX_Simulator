@@ -18,4 +18,6 @@ public class GlobalVars {
     public static boolean execution_completed = false;
     public static boolean pipeline_frozen = false;
     public static final int PHYS_REG_COUNT = 16;
+    public static final int ROB_SIZE = 16;
+    public static final int IQ_SIZE = 8;
 }

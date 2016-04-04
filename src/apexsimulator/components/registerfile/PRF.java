@@ -37,6 +37,14 @@ class PRF {
         }
     }
 
+    public Register getFree() {
+        for (int i =0 ; i< GlobalVars.PHYS_REG_COUNT; ++i) {
+            if (!(prf[i].isUsed()))
+                return prf[i];
+        }
+        return null;
+    }
+
     /**
      * Prints used registers
      */
@@ -50,6 +58,8 @@ class PRF {
                 } else {
                     System.out.printf("[P%d: not ready] ", i);
                 }
+            } else {
+                System.out.printf("[P%d: free] ", i);
             }
         }
         System.out.println(")");

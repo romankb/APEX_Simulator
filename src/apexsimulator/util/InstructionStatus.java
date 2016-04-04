@@ -13,6 +13,9 @@ package apexsimulator.util;
  * @author Roman Kurbanov
  */
 public enum InstructionStatus {
+    Raw,
+    Waiting,
+    Executing,
     Ready,
     Completed
 }

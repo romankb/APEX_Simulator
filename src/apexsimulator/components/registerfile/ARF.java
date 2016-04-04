@@ -21,7 +21,7 @@ import java.util.TreeMap;
  * @author Roman Kurbanov
  */
 class ARF {
-    public Map<ArchRegisterEnum,Register> arf;
+    private Map<ArchRegisterEnum,Register> arf;
 
     /**
      * Constructs empty ARF
@@ -48,5 +48,27 @@ class ARF {
             System.out.printf("[%s: %d] ", entry.getKey(), entry.getValue());
         }
         System.out.println(")");
+    }
+
+    /**
+     * commitment simply updates ARF by creating new member inside it
+     * @param archReg name of register to update
+     * @param valIn value
+     */
+    public void commit(ArchRegisterEnum archReg, int valIn) {
+        Register temp = new Register();
+        temp.setValid(true);
+        temp.setUsed(true);
+        temp.setValue(valIn);
+        arf.put(archReg, temp);
+    }
+
+    /**
+     * Getter for a ARF
+     * @param archReg name of register to read
+     * @return null or needed register
+     */
+    public Register readRegister(ArchRegisterEnum archReg) {
+        return arf.get(archReg);
     }
 }

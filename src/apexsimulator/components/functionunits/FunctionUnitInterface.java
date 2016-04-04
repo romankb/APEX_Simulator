@@ -13,9 +13,6 @@ package apexsimulator.components.functionunits;
  * @author Roman Kurbanov
  */
 public interface FunctionUnitInterface {
-    boolean operationCompleted();
-    void setOperands(int[] args);
+    boolean ready();
     void nextCycle();
-    int result();
-
 }

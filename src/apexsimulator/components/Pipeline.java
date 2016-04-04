@@ -7,11 +7,8 @@
 
 package apexsimulator.components;
 
-import apexsimulator.components.registerfile.GlobalVars;
 import apexsimulator.components.registerfile.RegisterFile;
-import apexsimulator.components.stages.Decode1;
-import apexsimulator.components.stages.Fetch1;
-import apexsimulator.components.stages.Fetch2;
+import apexsimulator.components.stages.*;
 
 /**
  * This class contains all the stages, latches and common clock
@@ -20,59 +17,38 @@ import apexsimulator.components.stages.Fetch2;
  */
 public class Pipeline implements DisplayInterface{
 
-    private Fetch1 fetch1;
-    private Fetch2 fetch2;
-    private Decode1 decode1;
+    private StageInterface[] stages;
 
-    private Instruction latch1;
-    private Instruction mlatch2;
-    private Instruction slatch2;
-    private Instruction mlatch3;
-    private Instruction slatch3;
-    private Instruction mlatch4;
-    private Instruction slatch4;
 
     private RegisterFile rf;
 
     public Pipeline() {
-        fetch1 = new Fetch1();
-        fetch2 = new Fetch2();
-        decode1 = new Decode1();
+
         rf = RegisterFile.getInstance();
+        stages = new StageInterface[5];
+        stages[0] = new Fetch1();
+        stages[1] = new Fetch2();
+        stages[2] = new Decode1();
+        stages[3] = new Decode2();
+        stages[4] = new Execution();
+
+        for (int i = 0; i < 5; ++i) {
+            stages[i].setId(i);
+        }
+
+
     }
 
     public void reload() {
-        latch1 = null;
-        mlatch2 = null;
-        slatch2 = null;
-        mlatch3 = null;
-        slatch3 = null;
-        mlatch4 = null;
-        slatch4 = null;
-        fetch1.advance(null);
-        fetch2.advance(null);
-        decode1.advance(null);
+        for (int i = 0; i < 5; ++i) {
+            stages[i].clear();
+        }
     }
 
     public void nextCycle() {
-        // doesn't make any sense
-        if (GlobalVars.pipeline_frozen) {
-            // decode2.advance(null);
-            return;
+        for (int i = 4; i >=0; --i) {
+            stages[i].nextCycle();
         }
-        latch1 = new Instruction();
-        fetch1.advance(latch1);
-        slatch2 = mlatch2;
-        mlatch2 = latch1;
-        fetch2.advance(slatch2);
-
-        slatch3 = mlatch2;
-        mlatch3 = slatch2;
-        decode1.advance(slatch3);
-        slatch4 = mlatch2;
-        mlatch3 = slatch2;
-
-
     }
 
     /**
@@ -81,8 +57,10 @@ public class Pipeline implements DisplayInterface{
     @Override
     public void display() {
         System.out.println("---Contents of stages in the pipeline:---");
-        ((DisplayInterface)fetch1).display();
-        ((DisplayInterface)fetch2).display();
+        for (int i = 0; i < 5; ++i) {
+            stages[i].display();
+        }
+        System.out.println();
         System.out.println("-----------------------------------------");
     }
 }

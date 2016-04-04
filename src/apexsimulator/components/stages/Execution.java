@@ -1,10 +1,3 @@
-/*
- * Project: APEX_Simulator
- * Copyright (c) 2016, Roman Kurbanov,
- * Binghamton University.
- * All rights reserved.
- */
-
 package apexsimulator.components.stages;
 
 import apexsimulator.components.instructions.Instruction;
@@ -12,19 +5,15 @@ import apexsimulator.components.registerfile.GlobalVars;
 import apexsimulator.components.registerfile.RegisterFile;
 
 /**
- * Decode/Dispatch stage 2
- * Dispatches instruction
- *
  * @author Roman Kurbanov
  */
-public class Decode2 implements StageInterface{
+public class Execution implements StageInterface{
+
     Instruction instruction;
     RegisterFile rf;
-
     private int produce;
     private int consume;
-
-    public Decode2() {
+    public Execution() {
         rf = RegisterFile.getInstance();
     }
 
@@ -38,15 +27,15 @@ public class Decode2 implements StageInterface{
             return;
         }
 
-        // Next stage hasn't consumed it or data not available
-        if (rf.production[produce]!=null || rf.production[consume]==null) {
+        // data not available
+        if (rf.production[consume]==null) {
+            // do internal stuff, do not return
             return;
         }
 
         instruction = rf.production[consume];
-        // do smth with instruction lat
+        // do smth with instruction
         rf.production[consume] = null;
-        rf.production[produce] = instruction;
     }
 
     /**
@@ -55,7 +44,7 @@ public class Decode2 implements StageInterface{
     @Override
     public void clear() {
         instruction = null;
-        rf.production[produce] = null;
+        // clear ROB and queues
     }
 
     /**
@@ -64,9 +53,9 @@ public class Decode2 implements StageInterface{
     @Override
     public void display() {
         if (instruction==null) {
-            System.out.print("[D2]:EMPTY; ");
+            System.out.print("[E]:EMPTY; ");
         } else {
-            System.out.printf("[D2]:%s; ", instruction.getInstruction());
+            System.out.printf("[E]:%s; ", instruction.getInstruction());
         }
     }
 
@@ -79,4 +68,6 @@ public class Decode2 implements StageInterface{
         produce = id;
         consume = id -1;
     }
+
+
 }

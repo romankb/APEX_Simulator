@@ -93,7 +93,6 @@ public class Memory implements LoaderInterface, MemoryInterface, DisplayInterfac
     }
 
 
-
     /**
      * Returns an instruction at particular address
      * halts the execution if wrong address is passed
@@ -103,6 +102,10 @@ public class Memory implements LoaderInterface, MemoryInterface, DisplayInterfac
      */
     @Override
     public String fetch(int address) {
+        // last instruction
+        if ((iCacheSize-1) == address) {
+            GlobalVars.pipeline_frozen = true;
+        }
         int maxAddr = instrStart + iCacheSize;
         if (address<instrStart || address>maxAddr) {
             System.out.println("Error! Program is trying to access wrong memory segment.");

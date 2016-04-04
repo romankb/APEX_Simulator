@@ -7,8 +7,6 @@
 
 package apexsimulator.components.memory;
 
-import apexsimulator.components.Instruction;
-
 /**
  * Interface that fetches instructions at particular address
  *

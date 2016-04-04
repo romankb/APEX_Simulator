@@ -7,6 +7,8 @@
 
 package apexsimulator.components.functionunits;
 
+import apexsimulator.components.instructions.Instruction;
+
 /**
  * This class implements integer function unit for instructions
  * ADD, SUB, MOVC, AND, OR, EX-OR
@@ -14,5 +16,23 @@ package apexsimulator.components.functionunits;
  *
  * @author Roman Kurbanov
  */
-public class IntegerFunctionUnit {
+public class IntegerFunctionUnit implements FunctionUnitInterface{
+
+    Instruction instruction;
+    boolean ready;
+
+    public IntegerFunctionUnit() {
+        ready = true;
+    }
+
+
+    @Override
+    public boolean ready() {
+        return false;
+    }
+
+    @Override
+    public void nextCycle() {
+
+    }
 }
