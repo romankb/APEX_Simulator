@@ -13,7 +13,10 @@ import apexsimulator.components.registerfile.RegisterFile;
 
 /**
  * Decode/Dispatch stage 2
- * Dispatches instruction
+ * Dispatches instruction if all renames were successfull
+ * otherwise does nothing and stalls pipeline.
+ *
+ * Execution stage will consume and add it to appropriate queue
  *
  * @author Roman Kurbanov
  */
@@ -33,6 +36,7 @@ public class Decode2 implements StageInterface{
      */
     @Override
     public void nextCycle() {
+        instruction = null;
         // end of operations
         if (GlobalVars.pipeline_frozen) {
             return;
@@ -44,7 +48,11 @@ public class Decode2 implements StageInterface{
         }
 
         instruction = rf.production[consume];
-        // do smth with instruction lat
+        instruction.operands.getRenames();
+        if (!instruction.operands.readyToIssue()) {
+            return;
+        }
+
         rf.production[consume] = null;
         rf.production[produce] = instruction;
     }
@@ -66,7 +74,7 @@ public class Decode2 implements StageInterface{
         if (instruction==null) {
             System.out.print("[D2]:EMPTY; ");
         } else {
-            System.out.printf("[D2]:%s; ", instruction.getInstruction());
+            System.out.printf("[D2]:%s %s; ", instruction.getInstr().toString(), instruction.operands.toString());
         }
     }
 

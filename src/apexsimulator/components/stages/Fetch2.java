@@ -7,7 +7,6 @@
 
 package apexsimulator.components.stages;
 
-import apexsimulator.components.DisplayInterface;
 import apexsimulator.components.instructions.Instruction;
 import apexsimulator.components.memory.Memory;
 import apexsimulator.components.memory.MemoryInterface;
@@ -41,6 +40,7 @@ public class Fetch2 implements StageInterface{
      */
     @Override
     public void nextCycle() {
+        instruction = null;
         // end of operations
         if (GlobalVars.pipeline_frozen) {
             return;

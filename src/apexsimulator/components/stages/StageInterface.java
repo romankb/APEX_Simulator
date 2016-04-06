@@ -7,7 +7,6 @@
 
 package apexsimulator.components.stages;
 
-import apexsimulator.components.instructions.Instruction;
 
 /**
  * Interface for a typical stage in the pipeline

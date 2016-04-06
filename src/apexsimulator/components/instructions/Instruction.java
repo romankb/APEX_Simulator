@@ -7,7 +7,6 @@
 
 package apexsimulator.components.instructions;
 
-import apexsimulator.components.Operand;
 import apexsimulator.util.InstructionStatus;
 import apexsimulator.util.InstructionsEnum;
 
@@ -27,6 +26,7 @@ public class Instruction {
     private InstructionStatus status;
     private int PC;
 
+    public Operands operands;
     /**
      * Minimal version. Everything is initialized in stages
      */

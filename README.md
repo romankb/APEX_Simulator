@@ -31,3 +31,9 @@ subpackages, Controller is solely in _main_ package.
 
 Memory(d-Cache, i-Cache) and RegisterFile(ARF, PRF, RAT) are implemented as
 singletons with double-checked locking(thread safe for future extensions).
+
+All stages are implemented as discrete entities that interact between each other
+by means of producer and consumer roles with single slot buffer.
+
+Execution stage is the biggest stage in terms of design since it encapsulates
+Issue Queue, Functional Units, Load/Store Queue, Retirement Unit and Reorder Buffer

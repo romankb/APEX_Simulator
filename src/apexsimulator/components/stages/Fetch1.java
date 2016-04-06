@@ -37,7 +37,7 @@ public class Fetch1 implements StageInterface{
      */
     @Override
     public void nextCycle() {
-
+        instruction = null;
         // end of operations
         if (GlobalVars.pipeline_frozen) {
             return;

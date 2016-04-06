@@ -7,8 +7,9 @@
 
 package apexsimulator.components.stages;
 
-import apexsimulator.components.DisplayInterface;
+import apexsimulator.components.Predictor;
 import apexsimulator.components.instructions.Instruction;
+import apexsimulator.components.instructions.Operands;
 import apexsimulator.components.registerfile.GlobalVars;
 import apexsimulator.components.registerfile.RegisterFile;
 import apexsimulator.util.ErrorCodes;
@@ -25,9 +26,10 @@ import apexsimulator.util.StringParser;
 public class Decode1 implements StageInterface{
     private Instruction instruction;
     private RegisterFile rf;
-    //String[] tokens;
     private int produce;
     private int consume;
+
+    private String[] tokens;
 
     public Decode1() {
         rf = RegisterFile.getInstance();
@@ -39,6 +41,7 @@ public class Decode1 implements StageInterface{
      */
     @Override
     public void nextCycle() {
+        instruction = null;
         // end of operations
         if (GlobalVars.pipeline_frozen) {
             return;
@@ -50,23 +53,9 @@ public class Decode1 implements StageInterface{
         }
 
         instruction = rf.production[consume];
-        // do smth with instruction
-        rf.production[consume] = null;
-        rf.production[produce] = instruction;
-    }
 
-    /**
-     * Clears stage
-     */
-    @Override
-    public void clear() {
-        instruction = null;
-        rf.production[produce] = null;
-    }
-/*    @Override
-    public void advance(Instruction instruction) {
-        this.instruction = instruction;
-        if (instruction==null) return;
+        // splitting text into tokens
+
         tokens = instruction.getInstruction().split("\\s");
         if (tokens.length<1) {
             System.out.println("Error. Instruction \"" + instruction.getInstruction() + "\" cannot be decoded");
@@ -81,48 +70,40 @@ public class Decode1 implements StageInterface{
             System.exit(ErrorCodes.DECODE_ERROR);
         }
 
-        if (!checkAndPopulateArgs(type)) {
-            System.out.println("Error. Wrong number of arguments for instruction: \""+instruction+"\"");
-            System.out.println("Terminating execution");
-            System.exit(ErrorCodes.DECODE_ERROR);
+        // setting instruction type and checking number of arguments
+        instruction.setInstr(type);
+        instruction.operands = new Operands(tokens, type);
+
+        if (type == InstructionsEnum.BZ || type == InstructionsEnum.BNZ) {
+            int offset = instruction.operands.ops[0];
+            rf.prediction = Predictor.predict(offset);
+            rf.branching = true;
+            if (rf.prediction) {
+                rf.setFetchPC(instruction.getPC()+offset);
+                rf.rat.back();
+            }
+
+            rf.production[0] = null;
+        } else if (type == InstructionsEnum.JUMP || type == InstructionsEnum.BAL) {
+            rf.branching = true;
+            rf.rat.back();
         }
 
+
+        rf.production[consume] = null;
+        rf.production[produce] = instruction;
     }
 
-    // todo add zero register
-    private boolean checkAndPopulateArgs(InstructionsEnum type) {
-        if (type == InstructionsEnum.ADD || type == InstructionsEnum.SUB || type == InstructionsEnum.MUL ||
-                type == InstructionsEnum.AND || type == InstructionsEnum.OR || type == InstructionsEnum.EX_OR ||
-                type == InstructionsEnum.LOAD || type == InstructionsEnum.STORE) {
-            if (tokens.length != 4) return false;
-            instruction.getOperand1().setUsed(true);
-            instruction.getOperand1().setOper(tokens[1]);
+    /**
+     * Clears stage
+     */
+    @Override
+    public void clear() {
+        instruction = null;
+        rf.production[produce] = null;
+    }
 
-            instruction.getOperand2().setUsed(true);
-            instruction.getOperand2().setOper(tokens[2]);
 
-            instruction.getOperand3().setUsed(true);
-            instruction.getOperand3().setOper(tokens[3]);
-
-        } else if (type == InstructionsEnum.MOVC || type == InstructionsEnum.BAL || type == InstructionsEnum.JUMP) {
-            if (tokens.length != 3) return false;
-            instruction.getOperand1().setUsed(true);
-            instruction.getOperand1().setOper(tokens[1]);
-
-            instruction.getOperand2().setUsed(true);
-            instruction.getOperand2().setOper(tokens[2]);
-        } else if (type == InstructionsEnum.BZ || type == InstructionsEnum.BNZ) {
-            if (tokens.length != 2) return false;
-            instruction.getOperand1().setUsed(true);
-            instruction.getOperand1().setOper(tokens[1]);
-        } else if (type == InstructionsEnum.HALT) {
-            if (tokens.length != 1) return false;
-            RegisterFile.getInstance().pipelineFrozen = true;
-        } else {
-            return false;
-        }
-        return true;
-    }*/
 
     /**
      * Prints status to console

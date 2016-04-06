@@ -7,6 +7,9 @@
 
 package apexsimulator.components.registerfile;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Physical register file
  * Sole responsibility is to provide read and update access
@@ -16,15 +19,15 @@ package apexsimulator.components.registerfile;
  * @author Roman Kurbanov
  */
 class PRF {
-    public Register[] prf;
+    public LinkedList<Register> prf;
 
     /**
      * Constructs empty PRF
       */
     public PRF() {
-        prf = new Register[GlobalVars.PHYS_REG_COUNT];
+        prf = new LinkedList<>();
         for (int i = 0; i < GlobalVars.PHYS_REG_COUNT; ++i) {
-            prf[i] = new Register();
+            prf.addLast(new Register());
         }
     }
 
@@ -32,15 +35,19 @@ class PRF {
      * resets registers
      */
     public void reload() {
-        for (int i = 0; i < GlobalVars.PHYS_REG_COUNT; ++i) {
-            prf[i].reload();
+        for (Register reg:prf ) {
+            reg.reload();
         }
     }
 
     public Register getFree() {
-        for (int i =0 ; i< GlobalVars.PHYS_REG_COUNT; ++i) {
-            if (!(prf[i].isUsed()))
-                return prf[i];
+        int i = 0;
+        for (Register reg:prf ) {
+            if (!(reg.isUsed())) {
+                reg.physId = i;
+                return reg;
+            }
+            i++;
         }
         return null;
     }
@@ -50,17 +57,18 @@ class PRF {
      */
     public void display() {
         System.out.print("PRF: ( ");
-
-        for (int i = 0; i < GlobalVars.PHYS_REG_COUNT; ++i) {
-            if (prf[i].isUsed()) {
-                if (prf[i].isValid()) {
-                    System.out.printf("[P%d: %d] ", i, prf[i].getValue());
+        int i = 0;
+        for (Register reg:prf ) {
+            if (reg.isUsed()) {
+                if (reg.isValid()) {
+                    System.out.printf("[P%d: %d] ", i, reg.getValue());
                 } else {
                     System.out.printf("[P%d: not ready] ", i);
                 }
             } else {
                 System.out.printf("[P%d: free] ", i);
             }
+            i++;
         }
         System.out.println(")");
     }

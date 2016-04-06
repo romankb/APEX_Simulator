@@ -51,16 +51,12 @@ class ARF {
     }
 
     /**
-     * commitment simply updates ARF by creating new member inside it
+     * commitment simply updates ARF by adding new member inside it
      * @param archReg name of register to update
-     * @param valIn value
+     * @param regIn register
      */
-    public void commit(ArchRegisterEnum archReg, int valIn) {
-        Register temp = new Register();
-        temp.setValid(true);
-        temp.setUsed(true);
-        temp.setValue(valIn);
-        arf.put(archReg, temp);
+    public void commit(ArchRegisterEnum archReg, Register regIn) {
+        arf.put(archReg, regIn);
     }
 
     /**

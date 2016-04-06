@@ -9,6 +9,7 @@ package apexsimulator.components.registerfile;
 
 import apexsimulator.components.DisplayInterface;
 import apexsimulator.components.instructions.Instruction;
+import apexsimulator.components.memory.Memory;
 
 /**
  * Register file implemented as singleton
@@ -25,6 +26,8 @@ public class RegisterFile implements DisplayInterface {
 
     private int fetchPC;
     private int committedPC;
+    public boolean prediction;
+    public boolean branching;
 
     private volatile static RegisterFile rf;
     public RAT rat;
@@ -57,12 +60,17 @@ public class RegisterFile implements DisplayInterface {
         return rf;
     }
 
+    /**
+     * resets register file to default value
+     */
     public void reload() {
         fetchPC = GlobalVars.INSTR_START;
         committedPC = -1;
         GlobalVars.execution_completed = false;
         GlobalVars.pipeline_frozen = false;
         rat.reload();
+        prediction = false;
+        branching = false;
         for (int i=0; i < 4; ++i) {
             production[i] = null;
         }
@@ -84,6 +92,12 @@ public class RegisterFile implements DisplayInterface {
 
     public void setCommitedPC(int commitedPC) {
         this.committedPC = commitedPC;
+
+        // in case halt wasn't discovered. just a hack
+        // comment out if not needed
+        if (commitedPC == (Memory.getInstance().iCacheSize-1)) {
+            GlobalVars.execution_completed = true;
+        }
     }
 
     /**

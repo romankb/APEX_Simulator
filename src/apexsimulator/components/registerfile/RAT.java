@@ -28,6 +28,8 @@ public class RAT {
     private ARF arf;
     private PRF prf;
     private Map<ArchRegisterEnum, Register> rat;
+    private Map<ArchRegisterEnum, Register> rat_backup;
+    private boolean backed = false;
 
 
     /**
@@ -38,6 +40,15 @@ public class RAT {
         prf = new PRF();
         rat = new TreeMap<>();
 
+        // creating Z flag which will be 1
+        Register temp = new Register();
+        temp.setUsed(true);
+        temp.setValid(true);
+        temp.setValue(1);
+        commit(ArchRegisterEnum.Z, temp);
+
+        rat_backup = new TreeMap<>();
+        backed = false;
     }
 
     /**
@@ -47,6 +58,13 @@ public class RAT {
         arf.reload();
         prf.reload();
         rat.clear();
+        rat_backup.clear();
+        Register temp = new Register();
+        temp.setUsed(true);
+        temp.setValid(true);
+        temp.setValue(1);
+        commit(ArchRegisterEnum.Z, temp);
+        backed = false;
     }
 
     /**
@@ -62,15 +80,19 @@ public class RAT {
         Register temp = prf.getFree();
         if (temp!=null) {
             rat.put(archRegIn, temp);
+            temp.setUsed(true);
         }
         return temp;
     }
 
     public void commit(ArchRegisterEnum archRegIn, Register regIn) {
-        arf.commit(archRegIn, regIn.getValue());
+        arf.commit(archRegIn, regIn);
         Register temp = arf.readRegister(archRegIn);
         if (temp!=null) {
-            rat.put(archRegIn, temp);
+            //rat.put(archRegIn, temp);
+            prf.prf.remove(regIn);
+            temp.physId = -1;
+            prf.prf.addLast(new Register());
         } else {
             System.out.println("Commiting failed. Exiting...");
             System.exit(123);
@@ -82,5 +104,22 @@ public class RAT {
         arf.display();
     }
 
+    public void back() {
+        if (!backed) {
+            rat_backup.putAll(rat);
+            backed = true;
+        }
+    }
+
+    public void success() {
+        rat_backup.clear();
+        backed = false;
+    }
+
+    public void failure() {
+        rat.clear();
+        rat.putAll(rat_backup);
+        backed = false;
+    }
 
 }

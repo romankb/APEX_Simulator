@@ -20,6 +20,7 @@ public class Register {
     private boolean valid;
     private int value;
     private boolean used;
+    public int physId;
 
     /**
      * Creates default register which is not valid
@@ -36,6 +37,7 @@ public class Register {
         valid = false;
         value = 0;
         used = false;
+        physId = -1;
     }
 
     // getters and setters

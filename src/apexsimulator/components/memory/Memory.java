@@ -28,7 +28,7 @@ public class Memory implements LoaderInterface, MemoryInterface, DisplayInterfac
     private String[] iCache;
 
     private int dCacheSize = 10000;
-    private int iCacheSize;
+    public int iCacheSize;
     private int instrStart = GlobalVars.INSTR_START;
 
     private String fileName;
