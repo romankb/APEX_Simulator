@@ -134,6 +134,21 @@ public class Memory implements LoaderInterface, MemoryInterface, DisplayInterfac
     }
 
     /**
+     * Writes data to data cache
+     * @param address address of memory cell
+     * @param val value to be written
+     */
+    public void writeMem(int address, int val) {
+        if (address<0 || address>dCacheSize) {
+            System.out.println("Error! Program is trying to access wrong memory segment.");
+            System.out.println("Exiting...");
+            System.exit(ErrorCodes.SEGFAULT_ERROR);
+        }
+
+        dCache[address] = val;
+    }
+
+    /**
      * Purges existing data in d-cache and reloads instructions
      * in i-cache
      */

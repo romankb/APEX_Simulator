@@ -20,4 +20,5 @@ public class GlobalVars {
     public static final int PHYS_REG_COUNT = 16;
     public static final int ROB_SIZE = 16;
     public static final int IQ_SIZE = 8;
+    public static final int LSQ_SIZE = 8;
 }

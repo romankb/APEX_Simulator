@@ -28,6 +28,7 @@ public class RegisterFile implements DisplayInterface {
     private int committedPC;
     public boolean prediction;
     public boolean branching;
+    public boolean forwardingAvailable;
 
     private volatile static RegisterFile rf;
     public RAT rat;
@@ -71,6 +72,7 @@ public class RegisterFile implements DisplayInterface {
         rat.reload();
         prediction = false;
         branching = false;
+        forwardingAvailable = true;
         for (int i=0; i < 4; ++i) {
             production[i] = null;
         }
@@ -108,5 +110,12 @@ public class RegisterFile implements DisplayInterface {
         System.out.println("---Contents of register file:---");
         rat.display();
         System.out.println("--------------------------------");
+    }
+
+    public void clearLatches() {
+        production[0] = null;
+        production[1] = null;
+        production[2] = null;
+        production[3] = null;
     }
 }

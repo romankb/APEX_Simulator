@@ -35,6 +35,7 @@ public class Operands {
     private String[] tokens;
 
     private int regCount;
+
     private InstructionsEnum type;
 
     /**
@@ -123,19 +124,36 @@ public class Operands {
             waiting[1] = RegisterFile.getInstance().rat.getLatest(regNames[3]);
         } else if (type == InstructionsEnum.MOVC) {
             ops = new int[1];
-            ops[0] = parseVal(tokens[2]);
+            if (Pattern.matches("[a-zA-Z]+", tokens[2])) {
+                regNames = new ArchRegisterEnum[3];
+                regNames[0] = parseReg(tokens[1]);
+                regNames[1] = ArchRegisterEnum.Z;
+                regNames[2] = parseReg(tokens[2]);
+
+                waiting = new Register[1];
+                waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[2]);
+
+            }else{
+                ops[0] = parseVal(tokens[2]);
+                regNames = new ArchRegisterEnum[2];
+                regNames[0] = parseReg(tokens[1]);
+                regNames[1] = ArchRegisterEnum.Z;
+
+                waiting = new Register[0];
+
+            }
 
 
-            regNames = new ArchRegisterEnum[2];
-            regNames[0] = parseReg(tokens[1]);
-            regNames[1] = ArchRegisterEnum.Z;
+
+
+
 
             // dst and zflag
             output = new Register[2];
             output[0] = RegisterFile.getInstance().rat.assignFree(regNames[0]);
             output[1] = RegisterFile.getInstance().rat.assignFree(regNames[1]);
 
-            waiting = new Register[0];
+
 
         } else if (type == InstructionsEnum.LOAD) {
             ops = new int[2];
@@ -176,9 +194,9 @@ public class Operands {
                 output = new Register[0];
 
                 waiting = new Register[3];
-                waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
-                waiting[1] = RegisterFile.getInstance().rat.getLatest(regNames[2]);
-                waiting[2] = RegisterFile.getInstance().rat.getLatest(regNames[3]);
+                waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[0]);
+                waiting[1] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
+                waiting[2] = RegisterFile.getInstance().rat.getLatest(regNames[2]);
             } else {
                 ops[2] = parseVal(tokens[3]);
 
@@ -189,8 +207,8 @@ public class Operands {
                 output = new Register[0];
 
                 waiting = new Register[2];
-                waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
-                waiting[1] = RegisterFile.getInstance().rat.getLatest(regNames[2]);
+                waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[0]);
+                waiting[1] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
             }
         }
 
@@ -234,6 +252,8 @@ public class Operands {
 
     // only called if ready to dispatch
     public void populateOps() {
+        if (type == InstructionsEnum.NOP)   return;
+
         if (type == InstructionsEnum.BZ || type == InstructionsEnum.BNZ) {
             ops[1] = waiting[0].getValue();
         } else if (type == InstructionsEnum.BAL || type == InstructionsEnum.JUMP) {
@@ -242,7 +262,7 @@ public class Operands {
                 type == InstructionsEnum.AND || type == InstructionsEnum.OR || type == InstructionsEnum.EX_OR) {
             ops[0] = waiting[0].getValue();
             ops[1] = waiting[1].getValue();
-        } else if (type == InstructionsEnum.LOAD || type == InstructionsEnum.STORE) {
+        } else if (type == InstructionsEnum.LOAD || type == InstructionsEnum.STORE || type == InstructionsEnum.MOVC) {
             for (int i=0; i < waiting.length; ++i) {
                 ops[i] = waiting[i].getValue();
             }
@@ -259,6 +279,7 @@ public class Operands {
     }
 
     public boolean readyToDispatch() {
+        if (type == InstructionsEnum.NOP)   return true;
         boolean ready = true;
         for (int i = 0; i < waiting.length; ++i) {
             if (waiting[i] == null) {
@@ -274,6 +295,7 @@ public class Operands {
 
     // tries to acquire renamed registers again
     public void getRenames() {
+        if (type == InstructionsEnum.NOP)   return;
         for (int i = 0; i < output.length; ++i) {
             if (output[i] == null) {
                 output[i] = RegisterFile.getInstance().rat.assignFree(regNames[i]);
@@ -282,6 +304,7 @@ public class Operands {
     }
 
     public boolean readyToIssue () {
+        if (type == InstructionsEnum.NOP)   return true;
         boolean ready = true;
         for (int i = 0; i < output.length; ++i) {
             if (output[i] == null) {
@@ -338,5 +361,10 @@ public class Operands {
             System.exit(ErrorCodes.DECODE_ERROR);
         }
         return result;
+    }
+
+    public void reset() {
+        this.type = InstructionsEnum.NOP;
+        releasePhysReg();
     }
 }

@@ -10,6 +10,7 @@ package apexsimulator.components.stages;
 import apexsimulator.components.instructions.Instruction;
 import apexsimulator.components.registerfile.GlobalVars;
 import apexsimulator.components.registerfile.RegisterFile;
+import apexsimulator.util.InstructionStatus;
 
 /**
  * Decode/Dispatch stage 2
@@ -37,10 +38,10 @@ public class Decode2 implements StageInterface{
     @Override
     public void nextCycle() {
         instruction = null;
-        // end of operations
-        if (GlobalVars.pipeline_frozen) {
-            return;
-        }
+        // no need to freeze
+        //if (GlobalVars.pipeline_frozen) {
+        //    return;
+        //}
 
         // Next stage hasn't consumed it or data not available
         if (rf.production[produce]!=null || rf.production[consume]==null) {
@@ -52,6 +53,7 @@ public class Decode2 implements StageInterface{
         if (!instruction.operands.readyToIssue()) {
             return;
         }
+        instruction.setStatus(InstructionStatus.Waiting);
 
         rf.production[consume] = null;
         rf.production[produce] = instruction;

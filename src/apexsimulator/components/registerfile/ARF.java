@@ -45,7 +45,7 @@ class ARF {
 
         // printing only "dirty" items
         for (Map.Entry<ArchRegisterEnum, Register> entry: arf.entrySet()) {
-            System.out.printf("[%s: %d] ", entry.getKey(), entry.getValue());
+            System.out.printf("[%s: %d] ", entry.getKey(), entry.getValue().getValue());
         }
         System.out.println(")");
     }

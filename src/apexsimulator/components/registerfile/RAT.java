@@ -101,6 +101,7 @@ public class RAT {
 
     public void display() {
         prf.display();
+        System.out.println();
         arf.display();
     }
 
@@ -119,6 +120,7 @@ public class RAT {
     public void failure() {
         rat.clear();
         rat.putAll(rat_backup);
+        rat_backup.clear();
         backed = false;
     }
 
