@@ -84,11 +84,9 @@ public class IntegerFU {
 
     private void completeJump() {
         RegisterFile.getInstance().setFetchPC(curInstruction.operands.ops[0]+curInstruction.operands.ops[1]);
-        rob.revert(curInstruction);
-        RegisterFile.getInstance().rat.failure();
-        RegisterFile.getInstance().clearLatches();
-        RegisterFile.getInstance().branching = false;
 
+        rob.revert(curInstruction);
+        RegisterFile.getInstance().clearLatches();
 
 
         available = true;
@@ -98,66 +96,56 @@ public class IntegerFU {
     private void completeBal() {
         if (!RegisterFile.getInstance().forwardingAvailable)    return;
         RegisterFile.getInstance().setFetchPC(curInstruction.operands.ops[0]+curInstruction.operands.ops[1]);
+
         curInstruction.operands.output[0].setValue(curInstruction.getPC()+1);
         curInstruction.operands.output[0].setValid(true);
+
         rob.revert(curInstruction);
-        RegisterFile.getInstance().rat.failure();
         RegisterFile.getInstance().clearLatches();
-        RegisterFile.getInstance().branching = false;
+
         available = true;
         curInstruction.setStatus(InstructionStatus.Completed);
     }
 
     private void completeBnz() {
         if (curInstruction.operands.ops[1] != 0) {
-            if (RegisterFile.getInstance().prediction == false) {
+            if (curInstruction.prediction == false) {
 
-                RegisterFile.getInstance().setFetchPC(curInstruction.getPC()+curInstruction.operands.ops[0]);
+                RegisterFile.getInstance().setFetchPC(curInstruction.getPC() + curInstruction.operands.ops[0]);
                 rob.revert(curInstruction);
-                RegisterFile.getInstance().rat.failure();
+
                 RegisterFile.getInstance().clearLatches();
-            } else {
-                RegisterFile.getInstance().rat.success();
             }
         } else {
-            if (RegisterFile.getInstance().prediction == true) {
-                RegisterFile.getInstance().setFetchPC(curInstruction.getPC()+1);
+            if (curInstruction.prediction == true) {
+                RegisterFile.getInstance().setFetchPC(curInstruction.getPC() + 1);
                 rob.revert(curInstruction);
-                RegisterFile.getInstance().rat.failure();
+
                 RegisterFile.getInstance().clearLatches();
-            } else {
-                RegisterFile.getInstance().rat.success();
             }
         }
-        RegisterFile.getInstance().branching = false;
-        RegisterFile.getInstance().prediction = false;
+
+        curInstruction.prediction = false;
         available = true;
         curInstruction.setStatus(InstructionStatus.Completed);
     }
 
     private void completeBz() {
         if (curInstruction.operands.ops[1] == 0) {
-            if (RegisterFile.getInstance().prediction == false) {
-
-                RegisterFile.getInstance().setFetchPC(curInstruction.getPC()+curInstruction.operands.ops[0]);
+            if (curInstruction.prediction == false) {
+                RegisterFile.getInstance().setFetchPC(curInstruction.getPC() + curInstruction.operands.ops[0]);
                 rob.revert(curInstruction);
-                RegisterFile.getInstance().rat.failure();
                 RegisterFile.getInstance().clearLatches();
-            } else {
-                RegisterFile.getInstance().rat.success();
             }
         } else {
-            if (RegisterFile.getInstance().prediction == true) {
-                RegisterFile.getInstance().setFetchPC(curInstruction.getPC()+1);
+            if (curInstruction.prediction == true) {
+                RegisterFile.getInstance().setFetchPC(curInstruction.getPC() + 1);
                 rob.revert(curInstruction);
-                RegisterFile.getInstance().rat.failure();
                 RegisterFile.getInstance().clearLatches();
-            } else {
-                RegisterFile.getInstance().rat.success();
             }
         }
-        RegisterFile.getInstance().branching = false;
-        RegisterFile.getInstance().prediction = false;
+
+        curInstruction.prediction = false;
         available = true;
         curInstruction.setStatus(InstructionStatus.Completed);
     }
@@ -253,6 +241,6 @@ public class IntegerFU {
             System.out.printf("IntFU[EMPTY]; ");
             return;
         }
-        System.out.printf("IntFU[%s]; ", curInstruction.getInstruction().trim());
+        System.out.printf("IntFU[%s %s]; ", curInstruction.getInstr(), curInstruction.operands.opsToString());
     }
 }

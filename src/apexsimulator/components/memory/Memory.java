@@ -73,6 +73,7 @@ public class Memory implements LoaderInterface, MemoryInterface, DisplayInterfac
 
         // resetting data segment as well
         for(int i = 0; i < dCacheSize; i++) {
+            //dCache[i] = 0;
             dCache[i] = null;
         }
         fileReader.openFile();
@@ -103,13 +104,14 @@ public class Memory implements LoaderInterface, MemoryInterface, DisplayInterfac
     @Override
     public String fetch(int address) {
         // last instruction
-        if ((iCacheSize-1) == address) {
-            GlobalVars.pipeline_frozen = true;
-        }
-        int maxAddr = instrStart + iCacheSize;
+        //if ((iCacheSize-1) == address) {
+        //    GlobalVars.pipeline_frozen = true;
+        //}
+        int maxAddr = instrStart + iCacheSize-1;
         if (address<instrStart || address>maxAddr) {
             System.out.println("Error! Program is trying to access wrong memory segment.");
             System.out.println("Exiting...");
+            //System.out.println(address);
             System.exit(ErrorCodes.SEGFAULT_ERROR);
         }
 
@@ -124,8 +126,14 @@ public class Memory implements LoaderInterface, MemoryInterface, DisplayInterfac
      */
     @Override
     public int readData(int address) {
-        if (address<0 || address>dCacheSize) {
+        if (address<0 || address>(dCacheSize-1)) {
             System.out.println("Error! Program is trying to access wrong memory segment.");
+            System.out.println("Exiting...");
+            System.exit(ErrorCodes.SEGFAULT_ERROR);
+        }
+
+        if (dCache[address] == null) {
+            System.out.println("Error! Program is trying to access uninitialized memory area");
             System.out.println("Exiting...");
             System.exit(ErrorCodes.SEGFAULT_ERROR);
         }
@@ -139,7 +147,7 @@ public class Memory implements LoaderInterface, MemoryInterface, DisplayInterfac
      * @param val value to be written
      */
     public void writeMem(int address, int val) {
-        if (address<0 || address>dCacheSize) {
+        if (address<0 || address>(dCacheSize-1)) {
             System.out.println("Error! Program is trying to access wrong memory segment.");
             System.out.println("Exiting...");
             System.exit(ErrorCodes.SEGFAULT_ERROR);

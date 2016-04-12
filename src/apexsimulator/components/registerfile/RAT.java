@@ -9,7 +9,9 @@ package apexsimulator.components.registerfile;
 
 import apexsimulator.util.ArchRegisterEnum;
 
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 /**
@@ -27,9 +29,7 @@ public class RAT {
      */
     private ARF arf;
     private PRF prf;
-    private Map<ArchRegisterEnum, Register> rat;
-    private Map<ArchRegisterEnum, Register> rat_backup;
-    private boolean backed = false;
+    private Map<ArchRegisterEnum, LinkedList <Register>> rat;
 
 
     /**
@@ -47,8 +47,6 @@ public class RAT {
         temp.setValue(1);
         commit(ArchRegisterEnum.Z, temp);
 
-        rat_backup = new TreeMap<>();
-        backed = false;
     }
 
     /**
@@ -58,13 +56,11 @@ public class RAT {
         arf.reload();
         prf.reload();
         rat.clear();
-        rat_backup.clear();
         Register temp = new Register();
         temp.setUsed(true);
         temp.setValid(true);
         temp.setValue(1);
         commit(ArchRegisterEnum.Z, temp);
-        backed = false;
     }
 
     /**
@@ -73,13 +69,20 @@ public class RAT {
      * @return returns valid mapping or null if mapping doesn't exist
      */
     public Register getLatest(ArchRegisterEnum archRegIn) {
-        return rat.get(archRegIn);
+        try {
+            return rat.get(archRegIn).getFirst();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
     public Register assignFree(ArchRegisterEnum archRegIn) {
         Register temp = prf.getFree();
         if (temp!=null) {
-            rat.put(archRegIn, temp);
+            if (rat.get(archRegIn) == null) {
+                rat.put(archRegIn, new LinkedList<>());
+            }
+            rat.get(archRegIn).addFirst(temp);
             temp.setUsed(true);
         }
         return temp;
@@ -105,23 +108,11 @@ public class RAT {
         arf.display();
     }
 
-    public void back() {
-        if (!backed) {
-            rat_backup.putAll(rat);
-            backed = true;
-        }
+    /**
+     * Removes specific mapping from the RAT, useful for branches
+     * @param archRegIn name of register
+     */
+    public void deleteRename(ArchRegisterEnum archRegIn, Register reg) {
+        rat.get(archRegIn).remove(reg);
     }
-
-    public void success() {
-        rat_backup.clear();
-        backed = false;
-    }
-
-    public void failure() {
-        rat.clear();
-        rat.putAll(rat_backup);
-        rat_backup.clear();
-        backed = false;
-    }
-
 }

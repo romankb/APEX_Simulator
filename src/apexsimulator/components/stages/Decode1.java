@@ -74,19 +74,20 @@ public class Decode1 implements StageInterface{
         instruction.setInstr(type);
         instruction.operands = new Operands(tokens, type);
 
-        if (type == InstructionsEnum.BZ || type == InstructionsEnum.BNZ) {
+        if ( type == InstructionsEnum.BZ || type == InstructionsEnum.BNZ ) {
             int offset = instruction.operands.ops[0];
-            rf.prediction = Predictor.predict(offset);
-            rf.branching = true;
-            if (rf.prediction) {
-                rf.setFetchPC(instruction.getPC()+offset);
-                rf.rat.back();
-            }
+            instruction.prediction = Predictor.predict(offset);
 
+            if (instruction.prediction) {
+                rf.setFetchPC(instruction.getPC()+offset);
+
+                rf.production[0] = null;
+                // need to work and debug
+            }
+        }
+        if (type == InstructionsEnum.HALT) {
+            GlobalVars.pipeline_frozen = true;
             rf.production[0] = null;
-        } else if (type == InstructionsEnum.JUMP || type == InstructionsEnum.BAL) {
-            rf.branching = true;
-            rf.rat.back();
         }
 
 

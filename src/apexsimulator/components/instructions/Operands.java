@@ -55,7 +55,7 @@ public class Operands {
     }
 
     private void tryToPopulate() {
-        // convention for myself if has dest it is first in regnames
+        // convention for myself if has dest it is first in regnames wait before out
         if (type == InstructionsEnum.BZ || type == InstructionsEnum.BNZ) {
             waiting = new Register[1];
             waiting[0] = RegisterFile.getInstance().rat.getLatest(ArchRegisterEnum.Z);
@@ -69,7 +69,7 @@ public class Operands {
 
             output = new Register[0];
         } else if (type == InstructionsEnum.HALT) {
-            GlobalVars.pipeline_frozen = true;
+            //if(!RegisterFile.getInstance().branching)    GlobalVars.pipeline_frozen = true;
 
             regNames = new ArchRegisterEnum[0];
             waiting = new Register[0];
@@ -85,11 +85,13 @@ public class Operands {
             regNames[0] = ArchRegisterEnum.X;
             regNames[1] = parseReg(tokens[1]);
 
+            waiting = new Register[1];
+            waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
+
             output = new Register[1];
             output[0] = RegisterFile.getInstance().rat.assignFree(regNames[0]);
 
-            waiting = new Register[1];
-            waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
+
         } else if (type == InstructionsEnum.JUMP) {
             ops = new int[2];
             ops[1] = parseVal(tokens[2]);
@@ -114,17 +116,19 @@ public class Operands {
             regNames[2] = parseReg(tokens[2]);
             regNames[3] = parseReg(tokens[3]);
 
+            waiting = new Register[2];
+            waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[2]);
+            waiting[1] = RegisterFile.getInstance().rat.getLatest(regNames[3]);
+
             // dst and zflag
             output = new Register[2];
             output[0] = RegisterFile.getInstance().rat.assignFree(regNames[0]);
             output[1] = RegisterFile.getInstance().rat.assignFree(regNames[1]);
 
-            waiting = new Register[2];
-            waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[2]);
-            waiting[1] = RegisterFile.getInstance().rat.getLatest(regNames[3]);
+
         } else if (type == InstructionsEnum.MOVC) {
             ops = new int[1];
-            if (Pattern.matches("[a-zA-Z]+", tokens[2])) {
+            if (Pattern.matches("^[a-zA-Z].*", tokens[2])) {
                 regNames = new ArchRegisterEnum[3];
                 regNames[0] = parseReg(tokens[1]);
                 regNames[1] = ArchRegisterEnum.Z;
@@ -157,18 +161,20 @@ public class Operands {
 
         } else if (type == InstructionsEnum.LOAD) {
             ops = new int[2];
-            if (Pattern.matches("[a-zA-Z]+", tokens[3])) {
+            if (Pattern.matches("^[a-zA-Z].*", tokens[3])) {
                 regNames = new ArchRegisterEnum[3];
                 regNames[0] = parseReg(tokens[1]);
                 regNames[1] = parseReg(tokens[2]);
                 regNames[2] = parseReg(tokens[3]);
 
-                output = new Register[1];
-                output[0] = RegisterFile.getInstance().rat.assignFree(regNames[0]);
-
                 waiting = new Register[2];
                 waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
                 waiting[1] = RegisterFile.getInstance().rat.getLatest(regNames[2]);
+
+                output = new Register[1];
+                output[0] = RegisterFile.getInstance().rat.assignFree(regNames[0]);
+
+
             } else {
                 ops[1] = parseVal(tokens[3]);
 
@@ -176,16 +182,18 @@ public class Operands {
                 regNames[0] = parseReg(tokens[1]);
                 regNames[1] = parseReg(tokens[2]);
 
+                waiting = new Register[1];
+                waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
+
                 output = new Register[1];
                 output[0] = RegisterFile.getInstance().rat.assignFree(regNames[0]);
 
-                waiting = new Register[1];
-                waiting[0] = RegisterFile.getInstance().rat.getLatest(regNames[1]);
+
             }
 
         } else {
             ops = new int[3];
-            if (Pattern.matches("[a-zA-Z]+", tokens[3])) {
+            if (Pattern.matches("^[a-zA-Z].*", tokens[3])) {
                 regNames = new ArchRegisterEnum[3];
                 regNames[0] = parseReg(tokens[1]);
                 regNames[1] = parseReg(tokens[2]);
@@ -250,6 +258,35 @@ public class Operands {
         return res;
     }
 
+    /**
+     * Prints values themselves not register names
+     * @return
+     */
+    public String opsToString() {
+        String res = "";
+        // convention for myself if has dest it is first in regnames
+        if (type == InstructionsEnum.BZ || type == InstructionsEnum.BNZ) {
+            res = tokens[1];
+        } else if (type == InstructionsEnum.BAL || type == InstructionsEnum.JUMP){
+            res = String.format("%d %d", ops[0], ops[1]);
+
+        } else if (type == InstructionsEnum.ADD || type == InstructionsEnum.SUB || type == InstructionsEnum.MUL ||
+                type == InstructionsEnum.AND || type == InstructionsEnum.OR || type == InstructionsEnum.EX_OR ||
+                type == InstructionsEnum.LOAD) {
+                res = String.format("P%d %s %s", output[0].physId, ops[0], ops[1]);
+
+        } else if (type == InstructionsEnum.MOVC) {
+                res = "P" + output[0].physId + " " + ops[0];
+        } else  if (type == InstructionsEnum.STORE){
+            res = String.format("%s %s %s", ops[0], ops[1], ops[2]);
+        } else {
+            // do nothing
+        }
+
+
+        return res;
+    }
+
     // only called if ready to dispatch
     public void populateOps() {
         if (type == InstructionsEnum.NOP)   return;
@@ -274,10 +311,18 @@ public class Operands {
     // no worries releasing renames is safe doesn't affect commits
     public void releasePhysReg() {
         for (int i = 0; i < output.length; ++i) {
-            output[i].reload();
+            if (output[i]!=null) {
+                RegisterFile.getInstance().rat.deleteRename(regNames[i], output[i]);
+                output[i].reload();
+                output[i] = null;
+            }
         }
     }
 
+    /**
+     * Checks if all values were received and instruction is ready for execution
+     * @return true is all operands are ready, false otherwise
+     */
     public boolean readyToDispatch() {
         if (type == InstructionsEnum.NOP)   return true;
         boolean ready = true;
@@ -303,6 +348,10 @@ public class Operands {
         }
     }
 
+    /**
+     * Checks if instruction is ready to be added to issue queue
+     * @return false if renames weren't acquired
+     */
     public boolean readyToIssue () {
         if (type == InstructionsEnum.NOP)   return true;
         boolean ready = true;
@@ -343,6 +392,7 @@ public class Operands {
         } catch (Exception e) {
             System.out.println("Error. Wrong literal value " + text);
             System.out.println("Terminating execution");
+            //System.out.println(type);
             System.exit(ErrorCodes.DECODE_ERROR);
         }
         return result;
@@ -363,7 +413,14 @@ public class Operands {
         return result;
     }
 
+    /**
+     * Releases all acquired resources and renames of squashed instruction
+     */
     public void reset() {
+        if (type == InstructionsEnum.HALT) {
+            GlobalVars.pipeline_frozen = false;
+        }
+
         this.type = InstructionsEnum.NOP;
         releasePhysReg();
     }

@@ -55,6 +55,8 @@ public class ROB {
                 Memory.getInstance().writeMem((temp.operands.ops[1] + temp.operands.ops[2]), temp.operands.ops[0]);
             } else if (temp.getInstr() == InstructionsEnum.HALT) {
                 GlobalVars.execution_completed = true;
+            } else if (temp.getInstr() == InstructionsEnum.NOP) {
+
             } else {
                 for (int i = 0; i < temp.operands.output.length; ++i) {
                     RegisterFile.getInstance().rat.commit(temp.operands.regNames[i], temp.operands.output[i]);
@@ -73,9 +75,10 @@ public class ROB {
     public void revert(Instruction brIn) {
         int ind = robBuffer.indexOf(brIn);
         ListIterator<Instruction> it = robBuffer.listIterator(ind);
-        Instruction temp;
+        Instruction temp = it.next();
         while (it.hasNext()) {
             temp = it.next();
+
             temp.setInstr(InstructionsEnum.NOP);
             temp.operands.reset();
             temp.setStatus(InstructionStatus.Completed);
@@ -96,6 +99,11 @@ public class ROB {
         System.out.print("ROB:( ");
         for (Instruction temp:
              robBuffer) {
+            if (temp.getStatus()!=InstructionStatus.Completed && temp.getStatus()!=InstructionStatus.Executing) {
+                if (temp.operands.readyToDispatch()) {
+                    temp.setStatus(InstructionStatus.Ready);
+                }
+            }
             System.out.printf("[%s %s]; ", temp.getInstr(), temp.getStatus());
         }
         System.out.println(" )");

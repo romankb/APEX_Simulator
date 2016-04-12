@@ -90,7 +90,7 @@ public class MemoryFU {
             System.out.printf("MemFU[EMPTY]; ");
             return;
         }
-        System.out.printf("MemFU[%s]; ", curInstruction.getInstruction());
+        System.out.printf("MemFU[%s %s]; ", curInstruction.getInstr(), curInstruction.operands.opsToString());
     }
 
 }

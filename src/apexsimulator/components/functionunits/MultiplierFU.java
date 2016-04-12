@@ -93,7 +93,7 @@ public class MultiplierFU {
             System.out.printf("MulFU[EMPTY]; ");
             return;
         }
-        System.out.printf("MulFU[%s]; ", curInstruction.getInstruction());
+        System.out.printf("MulFU[%s %s]; ", curInstruction.getInstr(), curInstruction.operands.opsToString());
     }
 
 }

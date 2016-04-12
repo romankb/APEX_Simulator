@@ -27,11 +27,13 @@ public class Instruction {
     private int PC;
 
     public Operands operands;
+    public boolean prediction;
     /**
      * Minimal version. Everything is initialized in stages
      */
     public Instruction() {
         status = InstructionStatus.Raw;
+        prediction = false;
     }
 
     // Getters and setters

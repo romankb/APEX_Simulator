@@ -9,6 +9,7 @@ package apexsimulator.components.stages;
 
 import apexsimulator.components.DisplayInterface;
 import apexsimulator.components.instructions.Instruction;
+import apexsimulator.components.memory.Memory;
 import apexsimulator.components.registerfile.GlobalVars;
 import apexsimulator.components.registerfile.RegisterFile;
 
@@ -51,6 +52,10 @@ public class Fetch1 implements StageInterface{
 
 
         // Normal work
+        if (rf.getFetchPC()> (Memory.getInstance().iCacheSize+GlobalVars.INSTR_START - 1)){
+            rf.production[produce] = null;
+            return;
+        }
         instruction = new Instruction();
         int pcVal = rf.getFetchPC();
         instruction.setPC(pcVal);

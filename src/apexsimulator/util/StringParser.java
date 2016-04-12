@@ -26,6 +26,7 @@ public class StringParser {
             case "ADD" :    return InstructionsEnum.ADD;
             case "SUB" :    return InstructionsEnum.SUB;
             case "MOVC" :   return InstructionsEnum.MOVC;
+            case "MOV" :   return InstructionsEnum.MOVC;
             case "MUL" :    return InstructionsEnum.MUL;
             case "AND" :    return InstructionsEnum.AND;
             case "OR" :     return InstructionsEnum.OR;
