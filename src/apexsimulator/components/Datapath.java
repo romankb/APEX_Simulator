@@ -42,7 +42,7 @@ public class Datapath implements DatapathInterface{
     }
 
     /**
-     * simulates the number of cycles specified as <n> and waits.
+     * simulates the number of cycles specified as "n" and waits.
      * Simulation can stop earlier if a HALT instruction is encountered
      * and when the HALT instruction is in the WB stage.
      *

@@ -111,6 +111,7 @@ public class RAT {
     /**
      * Removes specific mapping from the RAT, useful for branches
      * @param archRegIn name of register
+     * @param reg Register to be deleted from rename
      */
     public void deleteRename(ArchRegisterEnum archRegIn, Register reg) {
         rat.get(archRegIn).remove(reg);

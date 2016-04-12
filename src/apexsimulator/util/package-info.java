@@ -8,7 +8,7 @@
 /**
  * This package defines classes and interfaces that will form core utility
  * and helper classes and functions
- * <p>
+ *
  * <p>The {@code FileInterface} defines core API needed by software for file
  * operations
  *

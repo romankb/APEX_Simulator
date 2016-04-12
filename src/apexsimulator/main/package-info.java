@@ -8,7 +8,7 @@
 /**
  * This package contains classes that are necessary
  * to setup simulator and interact with user.
- * <p>
+ *
  * <p>The {@code Driver} class is the entry point of the program
  *
  * @author Roman Kurbanov

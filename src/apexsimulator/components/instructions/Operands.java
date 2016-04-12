@@ -40,6 +40,9 @@ public class Operands {
 
     /**
      * Sets of overloaded constructors for different type of arguments
+     *
+     * @param tokens string tokens
+     * @param type type of instruction
      */
     public Operands(String[] tokens, InstructionsEnum type) {
         this.type = type;
@@ -260,7 +263,7 @@ public class Operands {
 
     /**
      * Prints values themselves not register names
-     * @return
+     * @return formatted string with data
      */
     public String opsToString() {
         String res = "";
