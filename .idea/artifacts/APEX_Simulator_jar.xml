@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" build-on-make="true" name="APEX_Simulator:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/APEX_Simulator_jar</output-path>
+    <output-path>$PROJECT_DIR$/exec</output-path>
     <root id="archive" name="APEX_Simulator.jar">
       <element id="module-output" name="APEX_Simulator" />
     </root>

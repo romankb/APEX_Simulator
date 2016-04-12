@@ -1,0 +1,18 @@
+For test 1:
+
+1.       Mem[14] = 30
+2.       R4 = 30 will hold 0 if LOAD/STORE not implemented.
+3.       R3 = 55 (will hold 27/32 if LOAD/ST dependency is not handled). 
+4.       R5 = 1650 or something else if dependency not handled.
+5.       Mem[10] = 1650
+
+For test 2:
+
+1.       Mem[4], Mem[5], Mem[6], Mem[7] = 35 if BNZ and dependencies handled correctly.
+2.       R6 = 5 if BZ is executed correctly.
+
+For test 3:
+
+1.       R5 = 100
+2.       R4 = 20007
+3.       R6 = 5 
