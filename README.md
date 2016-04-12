@@ -37,3 +37,9 @@ by means of producer and consumer roles with single slot buffer.
 
 Execution stage is the biggest stage in terms of design since it encapsulates
 Issue Queue, Functional Units, Load/Store Queue, Retirement Unit and Reorder Buffer
+
+**Running:** All operations are entered through numbers. If simulation reaches end
+of program it displays internal state and ends simulator. Sample run is displayed in
+the image below
+
+![sample_run](/img/sample_run.JPG "Sample Run")
