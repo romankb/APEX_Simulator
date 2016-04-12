@@ -42,4 +42,4 @@ Issue Queue, Functional Units, Load/Store Queue, Retirement Unit and Reorder Buf
 of program it displays internal state and ends simulator. Sample run is displayed in
 the image below
 
-![sample_run](/img/sample_run.JPG "Sample Run")
+![sample_run](/img/sample_run.jpg "Sample Run")
